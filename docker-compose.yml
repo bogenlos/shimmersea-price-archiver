@@ -1,0 +1,12 @@
+version: '3'
+services:
+  shimmersea-price-archiver:
+    build: .
+    image: shimmersea-price-archiver
+    container_name: shimmersea-price-archiver
+    restart: unless-stopped
+    volumes:
+      - /opt/shimmersea-price-output:/output
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      CRON: '*/3 * * * * *'

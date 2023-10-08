@@ -1,6 +1,6 @@
-# apedao-holdings-to-roles
+# shimmersea-price-archiver
 
-This script sets the allowlist of ApeDAO guild.xyz roles based on holdings of ApeDAO NFTs.
+This script fetches prices of token pairs and writes them to a given directory.
 
 ## Usage
 
