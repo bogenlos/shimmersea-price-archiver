@@ -1,0 +1,32 @@
+{
+  "tokensPairs": [
+    {
+      "token1": {
+        "symbol": "SMR",
+        "address": "0x1074010000000000000000000000000000000000",
+        "decimals": 6,
+        "amount": 1
+      },
+      "token2": {
+        "symbol": "APEin",
+        "address": "0x264F2e6142CE8bEA68e5C646f8C07db98A9E003A",
+        "decimals": 18,
+        "amount": 1
+      }
+    },
+    {
+      "token1": {
+        "symbol": "SMR",
+        "address": "0x1074010000000000000000000000000000000000",
+        "decimals": 6,
+        "amount": 1
+      },
+      "token2": {
+        "symbol": "ASSMB",
+        "address": "0x2F69dC2d27051493C775e4d36Be2bEBA5d7093E8",
+        "decimals": 9,
+        "amount": 1000000000000
+      }
+    }
+  ] 
+}

@@ -1,0 +1,28 @@
+{
+  "name": "shimmersea-price-archiver",
+  "version": "1.0.0",
+  "description": "Script to fetch asset prices from ShimmerSea and archive it in files.",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && forever --minUptime 1000 --spinSleepTime 1000 dist/index.js",
+    "once": "tsc && node dist/index.js"
+  },
+  "author": "bogenlos",
+  "license": "ISC",
+  "dependencies": {
+    "big.js": "^6.2.1",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.7.1",
+    "forever": "^4.0.3",
+    "node-cron": "^3.0.2"
+  },
+  "devDependencies": {
+    "@types/big.js": "^6.2.0",
+    "@types/node": "^20.8.2",
+    "@types/node-cron": "^3.0.9",
+    "eslint-config-prettier": "^9.0.0",
+    "prettier": "^3.0.3",
+    "prettier-plugin-organize-imports": "^3.2.3",
+    "typescript": "^5.2.2"
+  }
+}
