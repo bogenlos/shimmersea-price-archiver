@@ -9,4 +9,4 @@ services:
       - /opt/shimmersea-price-archiver/output:/output
       - /etc/localtime:/etc/localtime:ro
     environment:
-      CRON: '*/10 * * * *'
+      CRON: '*/5 * * * *'
