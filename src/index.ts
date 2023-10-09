@@ -1,3 +1,5 @@
+import axios from 'axios';
+import Big from 'big.js';
 import 'dotenv/config';
 import { Contract, JsonRpcProvider } from 'ethers';
 import cron from 'node-cron';
@@ -20,7 +22,54 @@ export interface TokenPairPrices {
 const RPC_ENDPOINT = 'https://json-rpc.evm.shimmer.network';
 const SHIMMER_SEA_ROUTER_ADDRESS = '0x3EdAFd0258F75E0F49d570B1b28a1F7A042bcEC3';
 
-const getEtherumContractProvider = async () => {
+const printTokenPairPrices = (tokenPairPrices: TokenPairPrices) => {
+  console.log(`${tokenPairPrices.timestamp.toUTCString()}`);
+  console.log(
+    `${tokenPairPrices.amount1} ${tokenPairPrices.symbol1} = ${Big(tokenPairPrices.price1To2.toString())
+      .div(Big(10).pow(tokenPairPrices.decimals2))
+      .toFixed(tokenPairPrices.decimals2)} ${tokenPairPrices.symbol2}`,
+  );
+  console.log(
+    `${tokenPairPrices.amount2} ${tokenPairPrices.symbol2} = ${Big(tokenPairPrices.price2To1.toString())
+      .div(Big(10).pow(tokenPairPrices.decimals1))
+      .toFixed(tokenPairPrices.decimals1)} ${tokenPairPrices.symbol1}`,
+  );
+  console.log('----------');
+};
+
+const readSmrUsdPrice = async () => {
+  try {
+    const response = await axios.get<undefined, { data: { mid: number; timestamp: number } }>(
+      'https://api.bitfinex.com/v1/pubticker/smrusd',
+    );
+    const tokenPairPrices = {
+      timestamp: new Date(),
+      symbol1: 'SMR',
+      symbol2: 'USD',
+      amount1: 1n,
+      amount2: 1n,
+      decimals1: 6,
+      decimals2: 6,
+      price1To2: BigInt(
+        Big(response.data.mid.toString())
+          .mul(10 ** 6)
+          .toFixed(0),
+      ),
+      price2To1: BigInt(
+        Big(1)
+          .div(Big(response.data.mid.toString()))
+          .mul(10 ** 6)
+          .toFixed(0),
+      ),
+    };
+    persist(tokenPairPrices);
+    printTokenPairPrices(tokenPairPrices);
+  } catch (e) {
+    console.error('Error fetching smr/usd from ', e);
+  }
+};
+
+const readTokenPairPrices = async () => {
   const jsonRpcProvider = new JsonRpcProvider(RPC_ENDPOINT);
   const shimmerSeaRouterContract = new Contract(SHIMMER_SEA_ROUTER_ADDRESS, shimmerSeaRouterAbi, jsonRpcProvider);
   const getAmountsOut = shimmerSeaRouterContract.getFunction('getAmountsOut');
@@ -47,17 +96,13 @@ const getEtherumContractProvider = async () => {
       price2To1: token2ToToken1[1],
     };
     persist(tokenPairPrices);
-
-    console.log(`${tokenPairPrices.timestamp.toUTCString()}`);
-    console.log(`${token1.amount.toString()} ${token1.symbol} = ${token1ToToken2[1].toString()} ${token2.symbol}`);
-    console.log(`${token2.amount.toString()} ${token2.symbol} = ${token2ToToken1[1].toString()} ${token1.symbol}`);
-    console.log('----------');
+    printTokenPairPrices(tokenPairPrices);
   }
 };
 
 const cronExpression = process.env.CRON ?? '*/10 * * * *';
 cron.schedule(cronExpression, async () => {
-  await getEtherumContractProvider();
+  await Promise.all([readSmrUsdPrice(), readTokenPairPrices()]);
 });
 
 console.log('Running with config:');
@@ -66,5 +111,5 @@ console.log(`  OUTPUT_DIR ${process.env.OUTPUT_DIR ?? './output'}`);
 console.log('----------');
 
 (async () => {
-  await getEtherumContractProvider();
+  await Promise.all([readSmrUsdPrice(), readTokenPairPrices()]);
 })();
