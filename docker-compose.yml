@@ -8,7 +8,6 @@ services:
     depends_on:
       influxdb:
         condition: service_healthy
-        restart: true
     volumes:
       - ${OUTPUT_DIR:-/opt/shimmersea-price-archiver/output}:/output
       - /etc/localtime:/etc/localtime:ro
