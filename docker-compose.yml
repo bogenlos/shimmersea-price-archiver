@@ -1,12 +1,42 @@
 version: '3'
 services:
-  shimmersea-price-archiver:
+  archiver:
     build: .
     image: shimmersea-price-archiver
     container_name: shimmersea-price-archiver
     restart: unless-stopped
+    depends_on:
+      influxdb:
+        condition: service_healthy
+        restart: true
     volumes:
-      - /opt/shimmersea-price-archiver/output:/output
+      - ${OUTPUT_DIR:-/opt/shimmersea-price-archiver/output}:/output
       - /etc/localtime:/etc/localtime:ro
     environment:
-      CRON: '*/5 * * * *'
+      - CRON=${CRON:-*/5 * * * *}
+      - INFLUXDB_URL=http://influxdb:8086
+      - INFLUXDB_ADMIN_TOKEN=${INFLUXDB_ADMIN_TOKEN}
+      - INFLUXDB_ORG=${INFLUXDB_ORG:-someorg}
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET:-shimersea-prices}
+      
+  influxdb:
+    image: influxdb:2.0
+    container_name: shimmersea-price-archiver.influxdb
+    restart: unless-stopped
+    ports:
+      - '9999:8086'
+    volumes:
+      - ${INFLUXDB_DATA_DIR:-/opt/shimmersea-price-archiver/influxdb/data}:/var/lib/influxdb2
+      - ${INFLUXDB_CONFIG_DIR:-/opt/shimmersea-price-archiver/influxdb/config}:/etc/influxdb2
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG:-someorg}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET:-shimersea-prices}
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_ADMIN_TOKEN}
+    healthcheck:
+      test: "curl -f http://localhost:8086/ping"
+      interval: 5s
+      timeout: 10s
+      retries: 5

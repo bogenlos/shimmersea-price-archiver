@@ -9,6 +9,7 @@
   "author": "bogenlos",
   "license": "ISC",
   "dependencies": {
+    "@influxdata/influxdb-client": "^1.33.2",
     "axios": "^1.5.1",
     "big.js": "^6.2.1",
     "dotenv": "^16.3.1",

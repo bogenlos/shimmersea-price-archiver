@@ -22,6 +22,12 @@ export interface TokenPairPrices {
 const RPC_ENDPOINT = 'https://json-rpc.evm.shimmer.network';
 const SHIMMER_SEA_ROUTER_ADDRESS = '0x3EdAFd0258F75E0F49d570B1b28a1F7A042bcEC3';
 
+const getTimestampWithoutSeconds = () => {
+  const timestamp = new Date();
+  timestamp.setSeconds(0, 0);
+  return timestamp;
+};
+
 const printTokenPairPrices = (tokenPairPrices: TokenPairPrices) => {
   console.log(`${tokenPairPrices.timestamp.toUTCString()}`);
   console.log(
@@ -37,13 +43,13 @@ const printTokenPairPrices = (tokenPairPrices: TokenPairPrices) => {
   console.log('----------');
 };
 
-const readSmrUsdPrice = async () => {
+const readSmrUsdPrice = async (timestamp: Date) => {
   try {
     const response = await axios.get<undefined, { data: { mid: number; timestamp: number } }>(
       'https://api.bitfinex.com/v1/pubticker/smrusd',
     );
     const tokenPairPrices = {
-      timestamp: new Date(),
+      timestamp,
       symbol1: 'SMR',
       symbol2: 'USD',
       amount1: 1n,
@@ -62,14 +68,14 @@ const readSmrUsdPrice = async () => {
           .toFixed(0),
       ),
     };
-    persist(tokenPairPrices);
+    await persist(tokenPairPrices);
     printTokenPairPrices(tokenPairPrices);
   } catch (e) {
     console.error('Error fetching smr/usd from ', e);
   }
 };
 
-const readTokenPairPrices = async () => {
+const readTokenPairPrices = async (timestamp: Date) => {
   const jsonRpcProvider = new JsonRpcProvider(RPC_ENDPOINT);
   const shimmerSeaRouterContract = new Contract(SHIMMER_SEA_ROUTER_ADDRESS, shimmerSeaRouterAbi, jsonRpcProvider);
   const getAmountsOut = shimmerSeaRouterContract.getFunction('getAmountsOut');
@@ -85,7 +91,7 @@ const readTokenPairPrices = async () => {
     ]);
 
     const tokenPairPrices = {
-      timestamp: new Date(),
+      timestamp,
       symbol1: token1.symbol,
       symbol2: token2.symbol,
       amount1: BigInt(token1.amount),
@@ -95,14 +101,15 @@ const readTokenPairPrices = async () => {
       price1To2: token1ToToken2[1],
       price2To1: token2ToToken1[1],
     };
-    persist(tokenPairPrices);
+    await persist(tokenPairPrices);
     printTokenPairPrices(tokenPairPrices);
   }
 };
 
 const cronExpression = process.env.CRON ?? '*/10 * * * *';
 cron.schedule(cronExpression, async () => {
-  await Promise.all([readSmrUsdPrice(), readTokenPairPrices()]);
+  const timestamp = getTimestampWithoutSeconds();
+  await Promise.all([readSmrUsdPrice(timestamp), readTokenPairPrices(timestamp)]);
 });
 
 console.log('Running with config:');
@@ -111,5 +118,6 @@ console.log(`  OUTPUT_DIR ${process.env.OUTPUT_DIR ?? './output'}`);
 console.log('----------');
 
 (async () => {
-  await Promise.all([readSmrUsdPrice(), readTokenPairPrices()]);
+  const timestamp = getTimestampWithoutSeconds();
+  await Promise.all([readSmrUsdPrice(timestamp), readTokenPairPrices(timestamp)]);
 })();

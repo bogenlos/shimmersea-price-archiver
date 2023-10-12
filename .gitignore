@@ -4,3 +4,4 @@ dist/
 .idea
 *.iml
 output/
+influxdb/
