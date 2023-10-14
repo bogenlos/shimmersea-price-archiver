@@ -85,7 +85,11 @@ const persistToFile = async (tokenPairPrices: TokenPairPrices) => {
 const persist = async (tokenPairPrices: TokenPairPrices) => {
   await persistToFile(tokenPairPrices);
   if (process.env.INFLUXDB_URL) {
-    await persistToInflux(tokenPairPrices);
+    try {
+      await persistToInflux(tokenPairPrices);
+    } catch (e) {
+      console.error('Error persisting to InfluxDB', e);
+    }
   }
 };
 
