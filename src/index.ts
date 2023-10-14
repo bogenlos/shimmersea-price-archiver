@@ -81,28 +81,33 @@ const readTokenPairPrices = async (timestamp: Date) => {
   const getAmountsOut = shimmerSeaRouterContract.getFunction('getAmountsOut');
 
   for (const { token1, token2 } of config.tokensPairs) {
-    const token1ToToken2 = await getAmountsOut.call(getAmountsOut, BigInt(token1.amount) * 10n ** BigInt(token1.decimals), [
-      token1.address,
-      token2.address,
-    ]);
-    const token2ToToken1 = await getAmountsOut.call(getAmountsOut, BigInt(token2.amount) * 10n ** BigInt(token2.decimals), [
-      token2.address,
-      token1.address,
-    ]);
+    try {
+      const token1ToToken2 = await getAmountsOut.call(getAmountsOut, BigInt(token1.amount) * 10n ** BigInt(token1.decimals), [
+        token1.address,
+        token2.address,
+      ]);
+      const token2ToToken1 = await getAmountsOut.call(getAmountsOut, BigInt(token2.amount) * 10n ** BigInt(token2.decimals), [
+        token2.address,
+        token1.address,
+      ]);
 
-    const tokenPairPrices = {
-      timestamp,
-      symbol1: token1.symbol,
-      symbol2: token2.symbol,
-      amount1: BigInt(token1.amount),
-      amount2: BigInt(token2.amount),
-      decimals1: token1.decimals,
-      decimals2: token2.decimals,
-      price1To2: token1ToToken2[1],
-      price2To1: token2ToToken1[1],
-    };
-    await persist(tokenPairPrices);
-    printTokenPairPrices(tokenPairPrices);
+      const tokenPairPrices = {
+        timestamp,
+        symbol1: token1.symbol,
+        symbol2: token2.symbol,
+        amount1: BigInt(token1.amount),
+        amount2: BigInt(token2.amount),
+        decimals1: token1.decimals,
+        decimals2: token2.decimals,
+        price1To2: token1ToToken2[1],
+        price2To1: token2ToToken1[1],
+      };
+      await persist(tokenPairPrices);
+      printTokenPairPrices(tokenPairPrices);
+    } catch (e) {
+      console.log(`Error fetching ${token1.symbol}/${token2.symbol} from ${RPC_ENDPOINT}`, e);
+      console.log('----------');
+    }
   }
 };
 
@@ -115,7 +120,7 @@ cron.schedule(cronExpression, async () => {
 console.log('Running with config:');
 console.log(`  CRON: ${cronExpression}`);
 console.log(`  OUTPUT_DIR ${process.env.OUTPUT_DIR ?? './output'}`);
-console.log('----------');
+console.log('----------\n');
 
 (async () => {
   const timestamp = getTimestampWithoutSeconds();

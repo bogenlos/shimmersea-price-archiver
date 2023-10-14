@@ -27,6 +27,20 @@
         "decimals": 9,
         "amount": 1000000000000
       }
+    },
+    {
+      "token1": {
+        "symbol": "SMR",
+        "address": "0x1074010000000000000000000000000000000000",
+        "decimals": 6,
+        "amount": 1
+      },
+      "token2": {
+        "symbol": "LUM",
+        "address": "0x4794Aeafa5Efe2fC1F6f5eb745798aaF39A81D3e",
+        "decimals": 18,
+        "amount": 1
+      }
     }
   ] 
 }
