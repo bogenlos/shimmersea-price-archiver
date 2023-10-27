@@ -41,6 +41,20 @@
         "decimals": 18,
         "amount": 1
       }
+    },
+    {
+      "token1": {
+        "symbol": "SMR",
+        "address": "0x1074010000000000000000000000000000000000",
+        "decimals": 6,
+        "amount": 1
+      },
+      "token2": {
+        "symbol": "DEEPR",
+        "address": "0x6e2fcc18364cA7ff7add33369d25f09CE2D2117c",
+        "decimals": 18,
+        "amount": 1
+      }
     }
   ] 
 }
