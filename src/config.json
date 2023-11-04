@@ -55,6 +55,20 @@
         "decimals": 18,
         "amount": 1
       }
+    },
+    {
+      "token1": {
+        "symbol": "SMR",
+        "address": "0x1074010000000000000000000000000000000000",
+        "decimals": 6,
+        "amount": 1
+      },
+      "token2": {
+        "symbol": "LOVE",
+        "address": "0x22d9b9F1b53A872D04A3DBFe3f61B7d21aA54D43",
+        "decimals": 18,
+        "amount": 1
+      }
     }
   ] 
 }
